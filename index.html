@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BG Cut - Professional Background Remover</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* অ্যানিমেটেড ব্যাকগ্রাউন্ড ইফেক্ট */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ফ্লোটিং পার্টিকেল */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 5%;
+            background: radial-gradient(circle, rgba(102,126,234,0.2), transparent);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .particle:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            bottom: 10%;
+            right: 5%;
+            background: radial-gradient(circle, rgba(118,75,162,0.2), transparent);
+            animation: float 12s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 30px) scale(1.1); }
+        }
+
+        /* নেভিগেশন বার */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #fff, #a8c0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transform: rotate(10deg);
+            transition: transform 0.3s;
+        }
+
+        .logo:hover .logo-icon {
+            transform: rotate(20deg) scale(1.1);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        /* হিরো সেকশন */
+        .hero {
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            color: white;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            line-height: 1.2;
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #667eea, #764ba2, #e0c3fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradient 5s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        /* ফিচার ব্যাজ */
+        .feature-badge {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge span {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        /* আপলোড বক্স */
+        .upload-container {
+            max-width: 700px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .upload-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px dashed rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-box:hover::before {
+            left: 100%;
+        }
+
+        .upload-box:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #667eea;
+            box-shadow: 0 30px 60px rgba(102,126,234,0.3);
+        }
+
+        .upload-box svg {
+            width: 100px;
+            height: 100px;
+            stroke: white;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .upload-box:hover svg {
+            transform: scale(1.1);
+            stroke: #667eea;
+        }
+
+        .upload-box h3 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .upload-box p {
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .upload-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(102,126,234,0.5);
+        }
+
+        .upload-btn:hover::before {
+            left: 100%;
+        }
+
+        /* স্ট্যাটিস্টিক্স */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 4rem;
+            animation: fadeInUp 1s ease 0.5s both;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* প্রিভিউ সেকশন */
+        .preview-section {
+            padding: 4rem 2rem;
+            background: white;
+            position: relative;
+            border-radius: 50px 50px 0 0;
+            margin-top: 4rem;
+        }
+
+        .preview-section::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(to top, white, transparent);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .before-after {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .image-box {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            border-radius: 30px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .image-box:hover {
+            transform: translateY(-10px);
+        }
+
+        .image-box h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        #originalImage, #removedBgImage {
+            min-height: 350px;
+            border-radius: 20px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #originalImage::after, #removedBgImage::after {
+            content: '👆';
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        #originalImage img, #removedBgImage img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 15px;
+            transition: transform 0.3s;
+        }
+
+        #originalImage:hover img, #removedBgImage:hover img {
+            transform: scale(1.05);
+        }
+
+        .download-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 3rem auto 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            border: none;
+            box-shadow: 0 10px 20px rgba(40,167,69,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(40,167,69,0.5);
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .loading {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .error {
+            color: #dc3545;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        /* ফুটার */
+        .footer {
+            background: #0f0c29;
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #667eea;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .social-icon:hover {
+            background: #667eea;
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .upload-box {
+                padding: 2rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .before-after {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ফ্লোটিং পার্টিকেল -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <!-- নেভিগেশন বার -->
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-icon">✂️</div>
+            BG Cut
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">হোম</a></li>
+            <li><a href="#how-it-works">কিভাবে কাজ করে</a></li>
+            <li><a href="#features">ফিচার্স</a></li>
+            <li><a href="#contact">যোগাযোগ</a></li>
+        </ul>
+    </nav>
+
+    <!-- হিরো সেকশন -->
+    <section class="hero" id="home">
+        <h1>
+            <span class="gradient-text">এক ক্লিকেই</span><br>
+            ব্যাকগ্রাউন্ড কাটুন
+        </h1>
+        
+        <p>বিশ্বের সবচেয়ে শক্তিশালী AI টেকনোলজি দিয়ে মুহূর্তেই ছবির ব্যাকগ্রাউন্ড রিমুভ করুন</p>
+        
+        <div class="feature-badge">
+            <div class="badge">
+                <span>⚡</span> ১০০% ফ্রি
+            </div>
+            <div class="badge">
+                <span>🎯</span> প্রো কোয়ালিটি
+            </div>
+            <div class="badge">
+                <span>🚀</span> ১ সেকেন্ডে
+            </div>
+        </div>
+        
+        <div class="upload-container">
+            <div class="upload-box" id="uploadBox">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                    <circle cx="12" cy="12" r="2"/>
+                </svg>
+                <h3>ছবি আপলোড করুন</h3>
+                <p>বা ড্র্যাগ করে ফেলুন (JPG, PNG, WEBP)</p>
+                <input type="file" id="imageInput" accept="image/*" hidden>
+                <button class="upload-btn" onclick="document.getElementById('imageInput').click()">
+                    ছবি সিলেক্ট করুন
+                </button>
+            </div>
+        </div>
+
+        <!-- স্ট্যাটিস্টিক্স -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">৫০০০+</div>
+                <div class="stat-label">ছবি প্রসেসড</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">৯৯%</div>
+                <div class="stat-label">একিউরেসি</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">২৪/৭</div>
+                <div class="stat-label">সাপোর্ট</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- প্রিভিউ সেকশন -->
+    <section class="preview-section" id="preview">
+        <div class="container">
+            <div class="section-title">
+                <h2>🎨 দেখুন ম্যাজিক</h2>
+                <p>আপনার ছবি আপলোড করুন এবং BG Cut-এর ম্যাজিক দেখুন</p>
+            </div>
+            
+            <div class="before-after">
+                <div class="image-box">
+                    <h3>📸 আপলোড করা ছবি</h3>
+                    <div id="originalImage"></div>
+                </div>
+                <div class="image-box">
+                    <h3>✨ BG কাটা ছবি</h3>
+                    <div id="removedBgImage"></div>
+                </div>
+            </div>
+            
+            <button class="download-btn" id="downloadBtn" style="display: none;">
+                ⬇️ ডাউনলোড করুন
+            </button>
+        </div>
+    </section>
+
+    <!-- ফুটার -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">✂️ BG Cut</div>
+            <p>প্রফেশনাল ব্যাকগ্রাউন্ড রিমুভার টুল | ১০০% ফ্রি</p>
+            
+            <div class="footer-links">
+                <a href="#home">হোম</a>
+                <a href="#how-it-works">কিভাবে কাজ করে</a>
+                <a href="#features">ফিচার্স</a>
+                <a href="#privacy">প্রাইভেসি</a>
+                <a href="#terms">টার্মস</a>
+            </div>
+            
+            <div class="social-icons">
+                <div class="social-icon">📘</div>
+                <div class="social-icon">🐦</div>
+                <div class="social-icon">📷</div>
+                <div class="social-icon">💼</div>
+            </div>
+            
+            <div class="copyright">
+                © ২০২৬ BG Cut - সমস্ত অধিকার সংরক্ষিত
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('imageInput');
+            const uploadBox = document.getElementById('uploadBox');
+            const originalImage = document.getElementById('originalImage');
+            const removedBgImage = document.getElementById('removedBgImage');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // 🔑 API Key
+            const API_KEY = 'B8BJgZYCuAK3Aas6Jfc5po5z';
+            
+            // Drag & Drop functionality
+            uploadBox.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadBox.style.borderColor = '#667eea';
+                uploadBox.style.background = 'rgba(102,126,234,0.1)';
+            });
+            
+            uploadBox.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadBox.style.borderColor = 'rgba(255,255,255,0.2)';
+                uploadBox.style.background = 'rgba(255,255,255,0.1)';
+            });
+            
+            uploadBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadBox.style.borderColor = 'rgba(255,255,255,0.2)';
+                uploadBox.style.background = 'rgba(255,255,255,0.1)';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    processImage(file);
+                } else {
+                    showNotification('দয়া করে একটি ছবি সিলেক্ট করুন', 'error');
+                }
+            });
+            
+            // File input change
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    processImage(file);
+                }
+            });
+            
+            // Process image function
+            async function processImage(file) {
+                // Show loading
+                originalImage.innerHTML = '<div class="loading"></div>';
+                removedBgImage.innerHTML = '<div class="loading"></div>';
+                
+                // Display original image
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    originalImage.innerHTML = `<img src="${e.target.result}" alt="Original">`;
+                };
+                reader.readAsDataURL(file);
+                
+                // Remove background using API
+                const formData = new FormData();
+                formData.append('image_file', file);
+                formData.append('size', 'auto');
+                
+                try {
+                    const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                        method: 'POST',
+                        headers: {
+                            'X-Api-Key': API_KEY
+                        },
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        removedBgImage.innerHTML = `<img src="${url}" alt="Background Removed">`;
+                        downloadBtn.style.display = 'block';
+                        
+                        // Download functionality
+                        downloadBtn.onclick = () => {
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'BG-Cut-removed-background.png';
+                            a.click();
+                        };
+                        
+                        showNotification('ব্যাকগ্রাউন্ড কাটা সম্পন্ন! 🎉', 'success');
+                    } else {
+                        const errorText = await response.text();
+                        throw new Error(`BG কাটা যায়নি (${response.status})`);
+                    }
+                } catch (error) {
+                    removedBgImage.innerHTML = `<div class="error">${error.message}</div>`;
+                    showNotification(error.message, 'error');
+                }
+            }
+            
+            // Notification function
+            function showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    padding: 1rem 2rem;
+                    background: ${type === 'success' ? 'linear-gradient(45deg, #28a745, #20c997)' : 'linear-gradient(45deg, #dc3545, #ff6b6b)'};
+                    color: white;
+                    border-radius: 50px;
+                    font-weight: 500;
+                    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                    z-index: 1001;
+                    animation: slideIn 0.5s ease;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.5s ease';
+                    setTimeout(() => notification.remove(), 500);
+                }, 3000);
+            }
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
